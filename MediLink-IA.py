@@ -1,5 +1,5 @@
 from importlib.metadata import files
-
+from io import BytesIO
 import streamlit as st
 from datetime import datetime
 import pandas as pd
@@ -356,9 +356,14 @@ with st.sidebar:
                 st.dataframe(df_filtrado, use_container_width=True)
             else:
                 st.dataframe(df_mostrar, use_container_width=True)
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine="openpyxl") as writer:
+                    df_mostrar.to_excel(writer, index=False, sheet_name="Historial")
+                    output.seek(0)
+
                 st.download_button(
         label="📥 Descargar historial en Excel",
-        data=files,
+        data=output,
         file_name="HISTORIAL DE PACIENTES.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
